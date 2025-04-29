@@ -66,6 +66,26 @@ export const addSchool = async (req, res, next) => {
 }
 
 /**
+ * @function listSchools
+ * @description Handles GET requests to list schools sorted by their distance from a given latitude and longitude.
+ * Parses query parameters for `latitude` and `longitude`, validates them, fetches schools from the database,
+ * calculates the distance from each school to the given coordinates, sorts them by distance, and returns the result.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} req.query - The query parameters
+ * @param {string} req.query.latitude - The latitude coordinate as a string
+ * @param {string} req.query.longitude - The longitude coordinate as a string
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ *
+ * @returns {JSON} A JSON response containing the sorted list of schools with their distances from the given point,
+ * or an appropriate error message and status code if validation or internal errors occur.
+ *
+ * @throws {400} If latitude or longitude are missing or invalid.
+ * @throws {500} If a database error occurs.
+ */
+
+/**
  * @route GET /api/v1/school/listSchools
  * @desc allows user to list schools based on provided longitude and latitude
  * @public
