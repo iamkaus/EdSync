@@ -1,4 +1,5 @@
 import { databaseConnection } from '../config/mysql.config.js'
+import { getDistance } from "../helper/calculate-distance.helper.js";
 
 /**
  * Adds a new school to the database
@@ -71,5 +72,39 @@ export const addSchool = async (req, res, next) => {
  */
 
 export const listSchools = async (req, res, next) => {
+    try {
+        const latitude = parseFloat(req.query.latitude);
+        const longitude = parseFloat(req.query.longitude);
 
+        if (!latitude || !longitude) {
+            return res.status(400).json({
+                message: 'Latitude and longitude are required.'
+            })
+        }
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return res.send(400).json({
+                message: 'Latitude and Longitude must be valid numbers.'
+            })
+        }
+
+        try {
+            const [ schools ] = await databaseConnection.execute(
+                'SELECT * FROM school'
+            );
+
+            const sortedSchools = schools.map(school => ({
+                ...school,
+                distance: getDistance(latitude, longitude, school.latitude, school.longitude)
+            })).sort((a, b) => a.distance - b.distance);
+
+            res.json(sortedSchools);
+        } catch (error) {
+            res.status(500).json({
+                message: `Internal server error: ${error.message}`
+            });
+        }
+    } catch ( error ) {
+        next( error );
+    }
 }
