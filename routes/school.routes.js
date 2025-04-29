@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { addSchool, listSchools } from "../controllers/school.controller.js";
+import {requestBodyValidator} from "../middleware/validation.middleware.js";
 
 // router instance
 const schoolRoutes = Router()
@@ -10,7 +11,7 @@ const schoolRoutes = Router()
  * @public
  */
 
-schoolRoutes.post('/addSchool', addSchool)
+schoolRoutes.post('/addSchool', requestBodyValidator, addSchool)
 
 /**
  * @route GET /api/v1/school/listSchools

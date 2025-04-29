@@ -1,7 +1,16 @@
+/**
+ * MySQL database configuration and utility functions
+ * @module config/mysql.config
+ */
+
 import mysql from 'mysql2/promise';
 import {RAILWAY_DATABASE_HOST, RAILWAY_USER, RAILWAY_DATABASE, RAILWAY_PASSWORD} from "./env.config.js";
 
-// creating a connection pool
+/**
+ * Creates a MySQL connection pool with defined configuration
+ * @constant {Object} databaseConnection - Pool of database connections
+ */
+
 const databaseConnection = mysql.createPool({
     host: RAILWAY_DATABASE_HOST,
     user: RAILWAY_USER,
@@ -16,44 +25,77 @@ const databaseConnection = mysql.createPool({
     connectTimeout: 5000
 });
 
-// helper for transactions
+/**
+ * Executes a callback function within a database transaction
+ * Automatically handles commit/rollback based on success/failure
+ *
+ * @async
+ * @param {Function} callback - Function to execute within the transaction
+ * @param {Object} callback.connection - The database connection to use for the transaction
+ * @returns {Promise<*>} Result of the callback function
+ * @throws {Error} If an error occurs during the transaction
+ */
+
 const withTransaction = async (callback) => {
-    const connection = await databaseConnection.getConnection();                // getConnection or establish connection with database
+    const connection = await databaseConnection.getConnection();
 
     try {
-        await connection.beginTransaction();                                                    // initiate transaction
-        const result = await callback(connection);                                              // await transaction result from database
-        await connection.commit();                                                              // commit if no error
-        return result;                                                                          // return result
-    } catch ( error ) {
-        await connection.rollback();                                                            // rollback if an error occurs
-        throw error;                                                                            // throw error
+        await connection.beginTransaction();
+        const result = await callback(connection);
+        await connection.commit();
+        return result;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
     } finally {
-        connection.release();                                                                   // release connection
+        connection.release();
     }
 };
 
-// query execution with proper error handling
+/**
+ * Executes an SQL query with proper error handling
+ *
+ * @async
+ * @param {string} sql - The SQL query to execute
+ * @param {Array} [params=[]] - Parameters for the SQL query (for prepared statements)
+ * @returns {Promise<Array>} Query results
+ * @throws {Error} If query execution fails
+ */
+
 const execute = async (sql, params = []) => {
     try {
-        const [ rows ] = await databaseConnection.execute(sql, params);                     // execute sql query with params and destructure rows
-        return rows;                                                                            // return rows
-    } catch ( error ) {
-        console.error('Database connection error: ', error );                                   // log error
-        throw error;                                                                            // throw error
+        const [rows] = await databaseConnection.execute(sql, params);
+        return rows;
+    } catch (error) {
+        console.error('Database connection error: ', error);
+        throw error;
     }
-}
+};
 
-// method to check if connection is healthy
+/**
+ * Checks if the database connection is healthy
+ *
+ * @async
+ * @returns {Promise<boolean>} True if connection is healthy, false otherwise
+ */
+
 const healthCheck = async () => {
     try {
-        await databaseConnection.query('SELECT 1');                                             // run a query to check connection health
-        return true;                                                                            // return true
-    } catch ( error ) {
-        console.error('Database connection error: ', error );                                   // log error if connection is not healthy
-        return false;                                                                           // return false
+        await databaseConnection.query('SELECT 1');
+        return true;
+    } catch (error) {
+        console.error('Database connection error: ', error);
+        return false;
     }
-}
+};
+
+/**
+ * Closes the database connection pool
+ * Should be called when shutting down the application
+ *
+ * @async
+ * @returns {Promise<void>} Resolves when pool is closed
+ */
 
 const closePool = async () => {
     await databaseConnection.end();
@@ -65,4 +107,4 @@ export default {
     execute,
     healthCheck,
     closePool
-}                                                                                                // export necessary function/methods
+};
