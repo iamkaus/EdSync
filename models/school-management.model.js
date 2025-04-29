@@ -1,4 +1,4 @@
-import databaseConnection from "../config/mysql.config.js";
+import {databaseConnection} from "../config/mysql.config.js";
 
 /**
  * Creates the school table in the database if it doesn't already exist.

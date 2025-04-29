@@ -1,20 +1,31 @@
-import express from 'express';
-import schoolRoutes from "./routes/school.routes.js";
-import {NODE_ENV, PORT} from "./config/env.config.js";
-const app = express();
+import { PORT, NODE_ENV } from './config/env.config.js';
+import app from './app.js';
+import { createSchoolTable } from './models/school-management.model.js';
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+/**
+ * Initialize server and database tables
+ * @async
+ * @returns {Promise<void>}
+ */
+const startServer = async () => {
+    try {
+        // Create tables before starting server
+        await createSchoolTable();
+        console.log('School table created successfully');
 
-app.get('/', (req, res) => {
-    res.send('Welcome to EdSync. A school management API..')
-})
+        // Start the Express server
+        app.listen(PORT, () => {
+            console.log(`Server is running on port: http://localhost:${PORT} in ${NODE_ENV} mode`);
+        });
 
-// main routes
-app.use('/api/v1/school', schoolRoutes);
+    } catch (error) {
+        console.error(`Error starting server: ${error.message}`);
+        process.exit(1); // Exit with error code
+    }
+};
 
-app.listen(PORT, () => {
-    console.log(`AI issue tracker and suggestions provider API Listening on port: http://localhost:${PORT} in ${NODE_ENV}`);
-})
-
-export default app;
+// Start the server
+startServer().catch(error => {
+    console.error(`Failed to start server: ${error.message}`);
+    process.exit(1);
+});
