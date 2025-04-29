@@ -4,7 +4,13 @@
  */
 
 import mysql from 'mysql2/promise';
-import {RAILWAY_DATABASE_HOST, RAILWAY_USER, RAILWAY_DATABASE, RAILWAY_PASSWORD} from "./env.config.js";
+import {
+    RAILWAY_DATABASE_HOST,
+    RAILWAY_USER,
+    RAILWAY_DATABASE,
+    RAILWAY_PASSWORD,
+    RAILWAY_DATABASE_PORT
+} from "./env.config.js";
 
 /**
  * Creates a MySQL connection pool with defined configuration
@@ -13,12 +19,12 @@ import {RAILWAY_DATABASE_HOST, RAILWAY_USER, RAILWAY_DATABASE, RAILWAY_PASSWORD}
 
 const databaseConnection = mysql.createPool({
     host: RAILWAY_DATABASE_HOST,
+    port: RAILWAY_DATABASE_PORT,
     user: RAILWAY_USER,
     password: RAILWAY_PASSWORD,
     database: RAILWAY_DATABASE,
     waitForConnections: true,
     connectionLimit: 5,
-    maxRetries: 5,
     idleTimeout: 5000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
@@ -101,10 +107,10 @@ const closePool = async () => {
     await databaseConnection.end();
 };
 
-export default {
+export {
     databaseConnection,
     withTransaction,
     execute,
     healthCheck,
     closePool
-};
+}
