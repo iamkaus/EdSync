@@ -9,7 +9,12 @@ import {
     RAILWAY_USER,
     RAILWAY_DATABASE,
     RAILWAY_PASSWORD,
-    RAILWAY_DATABASE_PORT
+    RAILWAY_DATABASE_PORT,
+    CONNECTION_LIMIT,
+    IDLE_TIMEOUT,
+    ENABLE_KEEP_ALIVE,
+    CONNECTION_TIMEOUT,
+    KEEP_ALIVE_INITIAL_DELAY, WAIT_FOR_CONNECTION
 } from "./env.config.js";
 
 /**
@@ -23,12 +28,12 @@ const databaseConnection = mysql.createPool({
     user: RAILWAY_USER,
     password: RAILWAY_PASSWORD,
     database: RAILWAY_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 5,
-    idleTimeout: 5000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
-    connectTimeout: 5000
+    waitForConnections: WAIT_FOR_CONNECTION,
+    connectionLimit: CONNECTION_LIMIT,
+    idleTimeout: IDLE_TIMEOUT,
+    enableKeepAlive: ENABLE_KEEP_ALIVE,
+    keepAliveInitialDelay: KEEP_ALIVE_INITIAL_DELAY,
+    connectTimeout: CONNECTION_TIMEOUT
 });
 
 /**
